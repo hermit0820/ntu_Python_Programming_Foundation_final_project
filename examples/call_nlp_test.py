@@ -5,4 +5,6 @@ sys.path.insert(1, './module')
 
 import call_nlp
 
-print(call_nlp.call_nlp("hi"))
+prompt = ""
+results = call_nlp.call_nlp(prompt)
+print(results)
