@@ -4,7 +4,9 @@ import sys
 sys.path.insert(1, './module')
 
 from call_nlp import call_nlp
+from call_weather_api import call_weather_api
 
-prompt = "hi"
+results_weather = call_weather_api()
+prompt = f"請解析後方的json文檔，告訴我台北市明日的天氣狀態。'{results_weather}'"
 results = call_nlp(prompt)
 print(results)
