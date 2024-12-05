@@ -7,6 +7,6 @@ from call_nlp import call_nlp
 from call_weather_api import call_weather_api
 
 results_weather = call_weather_api()
-prompt = f"請解析後方的json文檔，告訴我台北市明日的天氣狀態。'{results_weather}'"
+prompt = f"請解析後方的json文檔，告訴我台北市明日的天氣狀態。'{results_weather['臺北市']}'"
 results = call_nlp(prompt)
 print(results)

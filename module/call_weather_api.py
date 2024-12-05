@@ -9,10 +9,16 @@ def call_weather_api():
     element_dict = {}
     for i in location:
         city = i['locationName']    # 縣市名稱
-        wx = i['weatherElement'][0]['time'][0]['parameter']['parameterName']    # 天氣現象
-        pop = i['weatherElement'][1]['time'][0]['parameter']['parameterName']  # 降雨機率
-        mint = i['weatherElement'][2]['time'][0]['parameter']['parameterName']  # 最低溫
-        ci = i['weatherElement'][3]['time'][0]['parameter']['parameterName']    # 舒適度
-        maxt = i['weatherElement'][4]['time'][0]['parameter']['parameterName']   # 最高溫
+        wx = {}
+        pop = {}
+        mint = {}
+        ci = {}
+        maxt = {}
+        for counter in range(0, 3):
+            wx[i['weatherElement'][0]['time'][counter]['startTime']] = i['weatherElement'][0]['time'][counter]['parameter']['parameterName']    # 天氣現象
+            pop[i['weatherElement'][1]['time'][counter]['startTime']] = i['weatherElement'][1]['time'][counter]['parameter']['parameterName']    # 降雨機率
+            mint[i['weatherElement'][2]['time'][counter]['startTime']] = i['weatherElement'][2]['time'][counter]['parameter']['parameterName']    # 最低溫
+            ci[i['weatherElement'][3]['time'][counter]['startTime']] = i['weatherElement'][3]['time'][counter]['parameter']['parameterName']    # 舒適度
+            maxt[i['weatherElement'][4]['time'][counter]['startTime']] = i['weatherElement'][4]['time'][counter]['parameter']['parameterName']    # 最高溫
         element_dict[city] = {"天氣現象":wx, "降雨機率":pop, "最低溫":mint, "舒適度":ci, "最高溫":maxt}
     return element_dict
