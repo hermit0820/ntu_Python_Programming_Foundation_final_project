@@ -15,7 +15,7 @@ def provide_comprehensive_clothing_recommendation(temp, rain_probability, wind_s
     elif 20 <= temp < 30:
         head_recommendation = "戴帽子防曬。"
     elif 10 <= temp < 20:
-        head_recommendation = "可以戴輕便的帽子或耳罩保暖。"
+        head_recommendation = "可以戴輕便的帽子保暖。"
     elif 0 <= temp < 10:
         head_recommendation = "戴毛帽或圍巾保暖。"
     else:
