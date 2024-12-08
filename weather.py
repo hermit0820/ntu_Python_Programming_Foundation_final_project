@@ -17,13 +17,28 @@ def process_weather_data(weather_data):
 
     # 溫度建議
     if temperature < 10:
-        suggestions.append("建議穿厚重的大衣和保暖長褲，搭配雪地、靴戴手套、圍巾和毛帽保暖。")
+        suggestions.append("建議穿厚重的大衣和保暖長褲，搭配雪地靴。")
+        suggestions.append("戴手套、圍巾和毛帽保暖。")
     elif 10 <= temperature < 20:
-        suggestions.append("建議穿夾克或毛衣，以及長褲、穿保暖運動鞋，並攜帶輕便帽子保暖。")
+        suggestions.append("建議穿夾克或毛衣，以及長褲。")
+        suggestions.append("穿保暖運動鞋，並攜帶輕便帽子保暖。")
     elif 20 <= temp < 30:
         suggestions.append("建議穿輕便T恤和牛仔褲，搭配運動鞋。")
     else:  # temp >= 30
-        suggestions.append("建議穿短袖T恤和短褲，搭配涼鞋或輕便鞋、戴輕便帽子以遮陽。")
+        suggestions.append("建議穿短袖T恤和短褲，搭配涼鞋或輕便鞋。")
+        suggestions.append("戴輕便帽子以遮陽。")
+
+    # 根據溫度決定頭部穿戴
+    if temperature >= 30:
+        suggestions.append("戶外建議戴輕便的帽子以遮陽。")
+    elif 20 <= temperature < 30:
+        suggestions.append("戶外活動戴鴨舌帽帽子防曬。")
+    elif 10 <= temperature < 20:
+        suggestions.append("可以戴輕便的帽子保暖。")
+    elif 0 <= temperature < 10:
+        suggestions.append("建議戴毛帽或圍巾保暖。")
+    else:
+        suggestions.append("建議戴厚重的帽子和圍巾保暖。")
 
     # 降雨機率建議
     if rain_prob > 50:
@@ -31,7 +46,21 @@ def process_weather_data(weather_data):
     elif 20 < rain_prob <= 50:
         suggestions.append("可能有小雨，建議攜帶輕便雨具。")
 
-    # 整合所有建議
+     # 根據溫度提供顏色建議
+    if temperature >= 30:
+       suggestions.append("建議選擇淺色（如白色、米色），減少吸熱效果。")
+    elif 20 <= temperature < 30:
+         suggestions.append("建議選擇中性色調（如灰色、卡其色），保持舒適耐看。")
+    elif 10 <= temperature< 20:
+        suggestions.append("建議選擇暖色調（如深棕色、橄欖綠），增加視覺暖意。")
+    elif temperature < 10:
+         suggestions.append("建議選擇深色（如黑色、深藍色），吸熱且保暖。")
+
+    # 根據降雨機率添加 建議
+    if rain_prob > 50:
+       suggestions.append("同時建議選擇深色衣物，避免雨水濕透後透光。")
+
+    # 結合所有建議
     return " ".join(suggestions)
 
 def call_nlp(prompt):
