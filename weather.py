@@ -4,6 +4,8 @@ from tkinter.scrolledtext import ScrolledText
 import requests
 import json
 import sys
+import threading
+
 
 def process_weather_data(weather_data):
     # 提取必要資訊
@@ -90,6 +92,49 @@ def call_weather_api():
         }
     return wx
 
+def fetch_weather_data():
+    if city_var.get().strip() == "請選擇欲查詢城市":
+        print("ff")
+        suggestion_display.config(state=tk.NORMAL)  # 允許編輯
+        suggestion_display.delete("1.0", tk.END)
+        suggestion_display.insert(tk.END, "請選擇一個有效的城市名稱。")
+        return
+    else :
+        suggestion_display.config(state=tk.NORMAL)  # 允許編輯
+        suggestion_display.delete("1.0", tk.END)    # 清空現有內容
+        suggestion_display.insert(tk.END, f"請稍後......")  #等待訊息
+        # 啟動子執行緒
+        threading.Thread(target=task).start()
+
+def task():
+    # 在子執行緒中運行的邏輯
+    try:
+        weather_data = call_weather_api()
+        if "錯誤" in weather_data:
+            suggestion_display.insert(tk.END, weather_data["錯誤"])
+        else:
+            latest_data = list(weather_data.values())[0]
+            for key, value in latest_data.items():
+                if key in weather_info:
+                    weather_info[key].set(value)
+            prompt = (
+                "請用中文根據以下資訊生成穿搭建議，且不另外列出天氣資訊和活動類型資訊："
+                + str(latest_data)
+                + "，粗估穿搭："
+                + process_weather_data(latest_data)
+                + "，活動類型："
+                + str(activity_var.get().strip())
+            )
+            response = call_nlp(prompt)
+            suggestion_display.delete("1.0", tk.END)  
+            suggestion_display.insert(tk.END, response)
+    except Exception as e:
+        suggestion_display.insert(tk.END, f"發生錯誤：{e}")
+    finally:
+        suggestion_display.config(state=tk.DISABLED)  # 禁用編輯
+
+
+
 # 初始化主視窗
 root = tk.Tk()
 root.title("天氣穿衣建議")
@@ -105,11 +150,10 @@ city_label = tk.Label(root, text="城市選擇：", font=("Arial", 12))
 city_label.pack(anchor="w", padx=20)
 city_var = tk.StringVar()
 city_list = [
-    "台北市", "新北市", "基隆市", "桃園市", "新竹市", "新竹縣",
+    "請選擇欲查詢城市","臺北市", "新北市", "基隆市", "桃園市", "新竹市", "新竹縣",
     "苗栗縣", "台中市", "彰化縣", "南投縣", "雲林縣", "嘉義市",
-    "嘉義縣", "台南市", "高雄市", "屏東縣", "宜蘭縣", "花蓮縣",
-    "台東縣", "澎湖縣", "金門縣", "連江縣"
-
+    "嘉義縣", "台南市", "高雄市", "屏東縣", "宜蘭縣",
+    "花蓮縣", "台東縣", "澎湖縣", "金門縣", "連江縣"
 ]
 city_dropdown = ttk.Combobox(root, textvariable=city_var, values=city_list)
 city_dropdown.pack(padx=20, pady=5)
@@ -128,7 +172,6 @@ activity_outdoor.pack(anchor="w", padx=40)
 # 顯示天氣資訊區域
 weather_frame = tk.LabelFrame(root, text="天氣資訊", font=("Arial", 12))
 weather_frame.pack(fill="both", expand="yes", padx=20, pady=10)
-
 weather_info = {
     "天氣現象": tk.StringVar(value="未知"),
     "降雨機率": tk.StringVar(value="未知"),
@@ -149,22 +192,6 @@ for key, var in weather_info.items():
 suggestion_label = tk.Label(root, text="建議穿著：", font=("Arial", 12))
 suggestion_label.pack(anchor="w", padx=20)
 
-def fetch_weather_data():
-    suggestion_display.config(state=tk.NORMAL)  # 允許編輯
-    suggestion_display.delete("1.0", tk.END)  # 清空現有內容
-
-    weather_data = call_weather_api()
-    if "錯誤" in weather_data:
-        suggestion_display.insert(tk.END, weather_data["錯誤"])
-    else:
-        latest_data = list(weather_data.values())[0]
-        for key, value in latest_data.items():
-            if key in weather_info:
-                weather_info[key].set(value)
-        prompt = "請用中文根據以下資訊生成穿搭建議，且不另外列出天氣資訊和活動類型資訊：" + str(latest_data) + "，粗估穿搭：" + process_weather_data(latest_data) + "，活動類型：" + str(activity_var.get().strip())
-        suggestion_display.insert(tk.END, call_nlp(prompt))
-    
-    suggestion_display.config(state=tk.DISABLED)  # 禁用編輯
 
 # 建立一個主框架
 main_frame = tk.Frame(root)
