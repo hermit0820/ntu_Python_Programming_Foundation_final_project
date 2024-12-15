@@ -3,7 +3,6 @@ from tkinter import ttk
 from tkinter.scrolledtext import ScrolledText
 import requests
 import json
-import sys
 import threading
 
 
@@ -22,7 +21,7 @@ def process_weather_data(weather_data):
     elif 10 <= temperature < 20:
         suggestions.append("建議穿夾克或毛衣，以及長褲。")
         suggestions.append("穿保暖運動鞋，並攜帶輕便帽子保暖。")
-    elif 20 <= temp < 30:
+    elif 20 <= temperature < 30:
         suggestions.append("建議穿輕便T恤和牛仔褲，搭配運動鞋。")
     else:  # temp >= 30
         suggestions.append("建議穿短袖T恤和短褲，搭配涼鞋或輕便鞋。")
@@ -46,19 +45,19 @@ def process_weather_data(weather_data):
     elif 20 < rain_prob <= 50:
         suggestions.append("可能有小雨，建議攜帶輕便雨具。")
 
-     # 根據溫度提供顏色建議
+    # 根據溫度提供顏色建議
     if temperature >= 30:
-       suggestions.append("建議選擇淺色（如白色、米色），減少吸熱效果。")
+        suggestions.append("建議選擇淺色（如白色、米色），減少吸熱效果。")
     elif 20 <= temperature < 30:
-         suggestions.append("建議選擇中性色調（如灰色、卡其色），保持舒適耐看。")
+        suggestions.append("建議選擇中性色調（如灰色、卡其色），保持舒適耐看。")
     elif 10 <= temperature< 20:
         suggestions.append("建議選擇暖色調（如深棕色、橄欖綠），增加視覺暖意。")
     elif temperature < 10:
-         suggestions.append("建議選擇深色（如黑色、深藍色），吸熱且保暖。")
+        suggestions.append("建議選擇深色（如黑色、深藍色），吸熱且保暖。")
 
     # 根據降雨機率添加 建議
     if rain_prob > 50:
-       suggestions.append("同時建議選擇深色衣物，避免雨水濕透後透光。")
+        suggestions.append("同時建議選擇深色衣物，避免雨水濕透後透光。")
 
     # 結合所有建議
     return " ".join(suggestions)
@@ -70,7 +69,7 @@ def call_nlp(prompt):
     url = 'http://122.116.26.243:11434/api/generate'
     #url = 'http://localhost:11434/api/generate'
     payload = {
-        "model": "llama3.2",
+        "model": "llama3.2-vision",
         "prompt": prompt
     }
 
@@ -99,11 +98,13 @@ def call_weather_api():
     location = json_api["records"]["location"]
     element_dict = {}
     city = city_var.get().strip() # 縣市名稱
+    """
     wx = {}
     pop = {}
     mint = {}
     ci = {}
     maxt = {}
+    """
     weather_element = None
     for loc in location:
         if loc["locationName"] == city:
@@ -113,14 +114,14 @@ def call_weather_api():
         return {"錯誤": "無法取得該城市的天氣資訊"}
     for counter in range(0, 3):
         time = weather_element[0]["time"][counter]["startTime"]
-        wx[time] = {
+        element_dict[time] = {
             "天氣現象": weather_element[0]["time"][counter]["parameter"]["parameterName"],
             "降雨機率": weather_element[1]["time"][counter]["parameter"]["parameterName"],
             "最低溫": weather_element[2]["time"][counter]["parameter"]["parameterName"],
             "舒適度": weather_element[3]["time"][counter]["parameter"]["parameterName"],
             "最高溫": weather_element[4]["time"][counter]["parameter"]["parameterName"]
         }
-    return wx
+    return element_dict
 
 def fetch_weather_data():
     if city_var.get().strip() == "請選擇欲查詢城市":
@@ -148,7 +149,7 @@ def task():
                 if key in weather_info:
                     weather_info[key].set(value)
             prompt = (
-                "請用中文根據以下資訊生成穿搭建議，且不另外列出天氣資訊和活動類型資訊："
+                "請用繁體中文根據以下資訊生成穿搭建議，且不另外列出天氣資訊和活動類型資訊："
                 + str(latest_data)
                 + "，粗估穿搭："
                 + process_weather_data(latest_data)
@@ -156,7 +157,7 @@ def task():
                 + str(activity_var.get().strip())
             )
             response = call_nlp(prompt)
-            suggestion_display.delete("1.0", tk.END)  
+            suggestion_display.delete("1.0", tk.END)
             suggestion_display.insert(tk.END, response)
     except Exception as e:
         suggestion_display.insert(tk.END, f"發生錯誤：{e}")
